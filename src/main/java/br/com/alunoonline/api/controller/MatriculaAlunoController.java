@@ -20,10 +20,4 @@ public class MatriculaAlunoController {
         matriculaAlunoService.create(matriculaAluno);
     }
 
-    @PatchMapping("/update-grades/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void atualizaNotas(@RequestBody AtualizarNotasRequest atualizarNotasRequestDto,
-                              @PathVariable Long id) {
-        matriculaAlunoService.updateGrades(atualizarNotasRequestDto, id);
-    }
 }

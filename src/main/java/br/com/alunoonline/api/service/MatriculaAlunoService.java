@@ -22,16 +22,14 @@ public class MatriculaAlunoService {
         matriculaAlunoRepository.save(matriculaAluno);
     }
 
-    public void updateGrades(AtualizarNotasRequest atualizarNotasRequest, Long matriculaAlunoId) {
-        MatriculaAluno matriculaAluno = matriculaAlunoRepository.findById(matriculaAlunoId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Matrícula de aluno não encontrada com ID: " + matriculaAlunoId));
-
-        updateStudentGrades(matriculaAluno, atualizarNotasRequest);
-        updateStudentStatus(matriculaAluno);
-        matriculaAlunoRepository.save(matriculaAluno);
+    public void updateGrades(Long matriculaAlunoId, AtualizarNotasRequest atualizarNotasRequest) {
+        MatriculaAluno matriculaAluno =
+                matriculaAlunoRepository.findById(matriculaAlunoId)
+                        .orElseThrow(() ->
+                                new ResponseStatusException(HttpStatus.NOT_FOUND, "Matrícula não encontrada"));
     }
 
-    private void updateStudentGrades(MatriculaAluno matriculaAluno, AtualizarNotasRequest atualizarNotasRequest) {
+    public void updateStudentGrades(MatriculaAluno matriculaAluno, AtualizarNotasRequest atualizarNotasRequest) {
         if (atualizarNotasRequest.getNota1() != null) {
             matriculaAluno.setNota1(atualizarNotasRequest.getNota1());
         }
@@ -41,14 +39,17 @@ public class MatriculaAlunoService {
         }
     }
 
-    private void updateStudentStatus(MatriculaAluno matriculaAluno) {
+    public void updateStudentStatus(MatriculaAluno matriculaAluno) {
         Double nota1 = matriculaAluno.getNota1();
         Double nota2 = matriculaAluno.getNota2();
 
         if (nota1 != null && nota2 != null) {
-            double average = (nota1 + nota2) / 2.0;
+            double average = (nota1 + nota2) / 2;
             matriculaAluno.setStatus(average >= GRADE_AVG_TO_APPROVE ? MatriculaAlunoStatusEnum.APROVADO : MatriculaAlunoStatusEnum.REPROVADO);
         }
+
     }
+
+
 
 }
