@@ -1,6 +1,8 @@
 package br.com.alunoonline.api.service;
 
+import br.com.alunoonline.api.enums.FinanceiroStatusEnum;
 import br.com.alunoonline.api.model.Aluno;
+import br.com.alunoonline.api.model.Financeiro;
 import br.com.alunoonline.api.repository.AlunoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,8 +18,12 @@ public class AlunoService {
     @Autowired
     AlunoRepository alunoRepository;
 
+    @Autowired
+    FinanceiroService financeiroService;
+
     public void create(Aluno aluno) {
-        alunoRepository.save(aluno);
+        Aluno savedStuded = alunoRepository.save(aluno);
+        createFinanceiroInformation(savedStuded);
     }
 
     public List<Aluno> findAll() {
@@ -45,5 +51,18 @@ public class AlunoService {
 
     public void deleteById(Long id) {
         alunoRepository.deleteById(id);
+    }
+
+    public void createFinanceiroInformation(Aluno aluno) {
+        Financeiro financeiro = new Financeiro(
+                null,
+                aluno,
+                aluno.getDiscount(),
+                aluno.getDueDate(),
+                null,
+                FinanceiroStatusEnum.EM_DIA
+        );
+
+        financeiroService.create(financeiro);
     }
 }
