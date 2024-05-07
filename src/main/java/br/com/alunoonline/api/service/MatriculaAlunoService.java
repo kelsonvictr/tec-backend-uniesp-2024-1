@@ -1,6 +1,7 @@
 package br.com.alunoonline.api.service;
 
 import br.com.alunoonline.api.dtos.AtualizarNotasRequest;
+import br.com.alunoonline.api.dtos.HistoricoAlunoResponse;
 import br.com.alunoonline.api.enums.MatriculaAlunoStatusEnum;
 import br.com.alunoonline.api.model.MatriculaAluno;
 import br.com.alunoonline.api.repository.MatriculaAlunoRepository;
@@ -27,6 +28,10 @@ public class MatriculaAlunoService {
                 matriculaAlunoRepository.findById(matriculaAlunoId)
                         .orElseThrow(() ->
                                 new ResponseStatusException(HttpStatus.NOT_FOUND, "Matrícula não encontrada"));
+        updateStudentGrades(matriculaAluno, atualizarNotasRequest);
+        updateStudentStatus(matriculaAluno);
+
+        matriculaAlunoRepository.save(matriculaAluno);
     }
 
     public void updateStudentGrades(MatriculaAluno matriculaAluno, AtualizarNotasRequest atualizarNotasRequest) {
@@ -47,6 +52,28 @@ public class MatriculaAlunoService {
             double average = (nota1 + nota2) / 2;
             matriculaAluno.setStatus(average >= GRADE_AVG_TO_APPROVE ? MatriculaAlunoStatusEnum.APROVADO : MatriculaAlunoStatusEnum.REPROVADO);
         }
+
+    }
+
+    public void updateStatusToBreak(Long matriculaAlunoId) {
+        MatriculaAluno matriculaAluno =
+                matriculaAlunoRepository.findById(matriculaAlunoId)
+                        .orElseThrow(() ->
+                                new ResponseStatusException(HttpStatus.NOT_FOUND, "Matrícula não encontrada"));
+
+        if (!MatriculaAlunoStatusEnum.MATRICULADO.equals(matriculaAluno.getStatus())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Só é possível trancar uma matrícula com o status MATRICULADO");
+        }
+
+        changeStatus(matriculaAluno, MatriculaAlunoStatusEnum.TRANCADO);
+    }
+
+    public void changeStatus(MatriculaAluno matriculaAluno, MatriculaAlunoStatusEnum matriculaAlunoStatusEnum) {
+        matriculaAluno.setStatus(matriculaAlunoStatusEnum);
+        matriculaAlunoRepository.save(matriculaAluno);
+    }
+
+    public HistoricoAlunoResponse getHistoricoFromAluno(Long alunoId) {
 
     }
 
