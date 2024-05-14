@@ -6,24 +6,25 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
-
+import java.time.LocalDateTime;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 @Entity
-public class Aluno implements Serializable {
+public class Fatura implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String name;
+    @ManyToOne
+    @JoinColumn(name = "student_financial_id")
+    private FinanceiroAluno studentFinancial;
 
-    private String email;
+    private LocalDateTime dueDate;
 
-    @OneToOne
-    @JoinColumn(name = "course_id")
-    private Curso course;
+    private LocalDateTime paidOn;
 
+    private LocalDateTime createdAt;
 }

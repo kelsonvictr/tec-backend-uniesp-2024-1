@@ -1,9 +1,12 @@
 package br.com.alunoonline.api.service;
 
+import br.com.alunoonline.api.dtos.CriarAlunoRequest;
 import br.com.alunoonline.api.enums.FinanceiroStatusEnum;
 import br.com.alunoonline.api.model.Aluno;
-import br.com.alunoonline.api.model.Financeiro;
+import br.com.alunoonline.api.model.Curso;
+import br.com.alunoonline.api.model.FinanceiroAluno;
 import br.com.alunoonline.api.repository.AlunoRepository;
+import br.com.alunoonline.api.repository.CursoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -19,11 +22,26 @@ public class AlunoService {
     AlunoRepository alunoRepository;
 
     @Autowired
+    CursoRepository cursoRepository;
+
+    @Autowired
     FinanceiroService financeiroService;
 
-    public void create(Aluno aluno) {
-        Aluno savedStuded = alunoRepository.save(aluno);
-        createFinanceiroInformation(savedStuded);
+    public void create(CriarAlunoRequest criarAlunoRequest) {
+        Curso curso = cursoRepository.findById(criarAlunoRequest.getCourseId())
+                .orElseThrow(() ->
+                        new ResponseStatusException(HttpStatus.NOT_FOUND, "Curso não encontrado"));
+
+        Aluno savedStuded = alunoRepository.save(
+                new Aluno(
+                        null,
+                        criarAlunoRequest.getName(),
+                        criarAlunoRequest.getEmail(),
+                        curso
+                )
+        );
+
+        createFinanceiroInformation(savedStuded, criarAlunoRequest);
     }
 
     public List<Aluno> findAll() {
@@ -53,16 +71,15 @@ public class AlunoService {
         alunoRepository.deleteById(id);
     }
 
-    public void createFinanceiroInformation(Aluno aluno) {
-        Financeiro financeiro = new Financeiro(
+    public void createFinanceiroInformation(Aluno aluno, CriarAlunoRequest criarAlunoRequest) {
+        FinanceiroAluno financeiroAluno = new FinanceiroAluno(
                 null,
                 aluno,
-                aluno.getDiscount(),
-                aluno.getDueDate(),
-                null,
+                criarAlunoRequest.getDiscount(),
+                criarAlunoRequest.getDueDate(),
                 FinanceiroStatusEnum.EM_DIA
         );
 
-        financeiroService.create(financeiro);
+        financeiroService.create(financeiroAluno);
     }
 }
