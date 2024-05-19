@@ -1,18 +1,19 @@
 package br.com.alunoonline.api.model;
 
+import br.com.alunoonline.api.enums.CursoTypeEnum;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
-
+import java.math.BigDecimal;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 @Entity
-public class Aluno implements Serializable {
+public class Curso implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,10 +21,9 @@ public class Aluno implements Serializable {
 
     private String name;
 
-    private String email;
+    @Enumerated(EnumType.STRING)
+    private CursoTypeEnum type;
 
-    @OneToOne
-    @JoinColumn(name = "course_id")
-    private Curso course;
+    private BigDecimal monthlyCost;
 
 }
