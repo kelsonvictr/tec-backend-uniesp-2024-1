@@ -42,7 +42,7 @@ public class FinanceiroService {
         logger.info("Iniciando a geração de faturas...");
 
         LocalDateTime currentDate = LocalDateTime.now();
-        LocalDateTime thresholdDate = currentDate.plusDays(QUANTITY_OF_DAYS_BEFORE_TO_GENERATE);
+        LocalDateTime generationDeadline = currentDate.plusDays(QUANTITY_OF_DAYS_BEFORE_TO_GENERATE);
 
         // Buscar todos os registros de FinanceiroAluno
         List<FinanceiroAluno> financeiroAlunos = financeiroAlunoRepository.findAll();
@@ -60,7 +60,7 @@ public class FinanceiroService {
                 }
 
                 // Verificar se falta 10 dias ou menos para a data de vencimento
-                if (dueDateCurrentMonth != null && (dueDateCurrentMonth.isBefore(thresholdDate.toLocalDate()) || dueDateCurrentMonth.isEqual(thresholdDate.toLocalDate()))) {
+                if (dueDateCurrentMonth != null && (dueDateCurrentMonth.isBefore(generationDeadline.toLocalDate()) || dueDateCurrentMonth.isEqual(generationDeadline.toLocalDate()))) {
                     // Verificar se já existe uma fatura para este aluno e data de vencimento
                     if (faturaRepository.existsByStudentFinancialAndDueDate(financeiroAluno, dueDateCurrentMonth.atTime(LocalTime.MIDNIGHT))) {
                        // logger.info("Fatura já existe para o aluno: {} com data de vencimento: {}", financeiroAluno.getId(), dueDateCurrentMonth);
