@@ -29,8 +29,11 @@ public class FinanceiroService {
     @Autowired
     FaturaRepository faturaRepository;
 
-    public void create(FinanceiroAluno financeiro) {
-        financeiroAlunoRepository.save(financeiro);
+    @Autowired
+    EmailService emailService;
+
+    public void create(FinanceiroAluno financeiroAluno) {
+        financeiroAlunoRepository.save(financeiroAluno);
     }
 
     @Scheduled(cron = "0 * * * * *")
@@ -58,6 +61,12 @@ public class FinanceiroService {
 
                 // Verificar se falta 10 dias ou menos para a data de vencimento
                 if (dueDateCurrentMonth != null && (dueDateCurrentMonth.isBefore(thresholdDate.toLocalDate()) || dueDateCurrentMonth.isEqual(thresholdDate.toLocalDate()))) {
+                    // Verificar se já existe uma fatura para este aluno e data de vencimento
+                    if (faturaRepository.existsByStudentFinancialAndDueDate(financeiroAluno, dueDateCurrentMonth.atTime(LocalTime.MIDNIGHT))) {
+                       // logger.info("Fatura já existe para o aluno: {} com data de vencimento: {}", financeiroAluno.getId(), dueDateCurrentMonth);
+                        continue;
+                    }
+
                     logger.info("Gerando fatura para o aluno: {}", financeiroAluno.getId());
 
                     // Criar uma nova fatura para o aluno
@@ -71,6 +80,12 @@ public class FinanceiroService {
 
                     logger.info("Fatura gerada para o aluno: {} com data de vencimento: {}", financeiroAluno.getId(), dueDateCurrentMonth);
 
+                    // Enviar o e-mail de notificação
+                    emailService.sendSimpleMessage(
+                            financeiroAluno.getStudent().getEmail(),
+                            "Fatura Gerada - UNIESP",
+                            "A sua mensalidade está disponível para pagamento através da área do cliente UNIESP"
+                    );
                 }
             }
         }
