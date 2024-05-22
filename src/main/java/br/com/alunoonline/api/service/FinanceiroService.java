@@ -28,6 +28,10 @@ public class FinanceiroService {
     @Autowired
     FaturaRepository faturaRepository;
 
+
+    // cron a cada minuto:
+    // @Scheduled(cron = "0 * * * * *")
+    // cron de meia noite:
     @Scheduled(cron = "0 0 0 * * ?")
     public void faturaGeneration() {
         logger.info("Iniciando a geração de faturas...");
